@@ -1,2 +1,5 @@
 ---
 vpc_name: dev-vpc
+
+nat_instance_type: t2.micro
+nat_keypair: dev-vpc-nat

@@ -81,7 +81,7 @@ CloudFormation {
     VpcId Ref('vpc')
     InternetGatewayId Ref('igw')
   }
-  
+
   EC2_RouteTable('publicRouteTable') {
     VpcId Ref('vpc')
 
@@ -124,5 +124,15 @@ CloudFormation {
       RouteTableId Ref('privateRouteTable')
     }
   end
+
+
+  Output(:vpcId,
+         Ref('vpc'))
+
+  Output(:publicSubnetId1,
+         Ref('publicSubnet1'))
+
+  Output(:privateRouteTableId,
+         Ref('privateRouteTable'))
 }
 

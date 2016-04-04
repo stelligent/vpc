@@ -1,70 +1,33 @@
 require 'awspec'
 require 'aws-sdk'
+require 'id_util'
 
-def vpc_id_by_name(vpc_name)
-  client = Aws::EC2::Client.new
-  describe_vpcs_response = client.describe_vpcs filters: [
-                                                  {
-                                                    name: 'tag:Name',
-                                                    values: [vpc_name],
-                                                  }
-                                                ]
-
-  if describe_vpcs_response.vpcs.length != 1
-    raise "unique vpc not found: #{vpc_name} has #{describe_vpcs_response.vpcs.length} hits"
-  else
-    describe_vpcs_response.vpcs.first.vpc_id
-  end
+def region
+  'us-east-1'
 end
 
-def subnet_id_by_name(subnet_name)
-  client = Aws::EC2::Client.new
-  describe_subnets_response = client.describe_subnets filters: [
-                                                  {
-                                                    name: 'tag:Name',
-                                                    values: [subnet_name],
-                                                  }
-                                                ]
 
-  if describe_subnets_response.subnets.length != 1
-    raise "unique subnet not found: #{subnet_name} has #{describe_subnets_response.subnets.length} hits"
+include IdUtil
+
+def instance_id_by_name(instance_name)
+  client = Aws::EC2::Client.new
+  describe_instances_response = client.describe_instances filters: [
+                                                                  {
+                                                                    name: 'tag:Name',
+                                                                    values: [instance_name],
+                                                                  }
+                                                                ]
+
+  if describe_instances_response.reservations.length != 1
+    raise "unique reservation for instance id not found: #{instance_name} has #{describe_instances_response.reservations.length} hits"
   else
-    describe_subnets_response.subnets.first.subnet_id
+    if describe_instances_response.reservations.first.instances.length != 1
+      raise "unique instance for instance id not found: #{instance_name} has #{describe_instances_response.reservations.first.instances.length} hits"
+    else
+      describe_instances_response.reservations.first.instances.first.instance_id
+    end
   end
 end
-
-def igw_id_by_name(igw_name)
-  client = Aws::EC2::Client.new
-  describe_internet_gateways_response = client.describe_internet_gateways filters: [
-                                                        {
-                                                          name: 'tag:Name',
-                                                          values: [igw_name],
-                                                        }
-                                                      ]
-
-  if describe_internet_gateways_response.internet_gateways.length != 1
-    raise "unique igw not found: #{igw_name} has #{describe_internet_gateways_response.internet_gateways.length} hits"
-  else
-    describe_internet_gateways_response.internet_gateways.first.internet_gateway_id
-  end
-end
-
-def route_table_id_by_name(route_table_name)
-  client = Aws::EC2::Client.new
-  describe_route_tables_response = client.describe_route_tables filters: [
-                                                                            {
-                                                                              name: 'tag:Name',
-                                                                              values: [route_table_name],
-                                                                            }
-                                                                          ]
-
-  if describe_route_tables_response.route_tables.length != 1
-    raise "unique route table not found: #{route_table_name} has #{describe_route_tables_response.route_tables.length} hits"
-  else
-    describe_route_tables_response.route_tables.first.route_table_id
-  end
-end
-
 
 module Awspec::Type
   class Vpc < Base
