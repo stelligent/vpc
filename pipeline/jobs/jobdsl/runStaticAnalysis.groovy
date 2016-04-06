@@ -1,6 +1,6 @@
 jobName = 'run-static-analysis'
 awsRegion = 'us-west-2'
-customActionTypeVersion = 1
+customActionTypeVersion = 2
 
 job(jobName) {
   triggers {
