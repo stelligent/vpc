@@ -1,0 +1,17 @@
+---
+ec2_keypair_name: pipeline-jenkins
+vpc_id: vpc-27e23743
+subnet_id: subnet-2c5a8748
+
+job_repo: https://github.com/stelligent/vpc.git
+job_repo_branch: master
+job_definition_relative_path: 'pipeline/jobs/jobdsl'
+
+associate_public_ip_address: true
+
+extra_user_data_provisioning:
+  - "yum -y install ruby-devel jq\n"
+  - "yum -y install zlib-devel\n"
+  - "yum -y groupinstall 'Development Tools'\n"
+  - "yum -y install libyaml-devel readline-devel libffi-devel openssl-devel sqlite-devel\n"
+

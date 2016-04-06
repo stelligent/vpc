@@ -71,8 +71,6 @@ CloudFormation {
     END
   }
 
-  source_artefact_name = 'vpcSourceCodeArtefact'
-
   run_static_analysis_action_name = 'run-static-analysis'
   converge_dev_vpc_action_name = 'converge-dev-vpc'
   run_infrastructure_tests_action_name = 'run-infra-tests'
@@ -81,11 +79,12 @@ CloudFormation {
 
   vpc_artefact_name = 'vpcWorkspace'
 
+  jenkins_action_provider_name = 'JenkinsVpcProvider'
   Resource('rBuildActionType') {
     Type 'AWS::CodePipeline::CustomActionType'
 
     Property 'Category', 'Build'
-    Property 'Provider', 'buildActionProvider'
+    Property 'Provider', jenkins_action_provider_name
     Property 'Version', version
     Property 'ConfigurationProperties', [
       {
@@ -158,7 +157,7 @@ CloudFormation {
                'Category' => 'Build',
                'Owner' => 'Custom',
                'Version' => version,
-               'Provider' => 'buildActionProvider'
+               'Provider' => jenkins_action_provider_name
              },
              'RunOrder' => 1,
              'InputArtifacts' => [
@@ -168,7 +167,7 @@ CloudFormation {
              ],
              'OutputArtifacts' => [
                {
-                 'Name' => 'static-analysis'
+                 'Name' => 'static-analysis-ws'
                }
              ],
              'Configuration' => {
@@ -186,17 +185,17 @@ CloudFormation {
               'Category' => 'Build',
               'Owner' => 'Custom',
               'Version' => version,
-              'Provider' => 'buildActionProvider'
+              'Provider' => jenkins_action_provider_name
             },
             'RunOrder' => 1,
             'InputArtifacts' => [
               {
-                'Name' => 'static-analysis'
+                'Name' => 'static-analysis-ws'
               }
             ],
             'OutputArtifacts' => [
               {
-                'Name' => 'converge-dev'
+                'Name' => 'converge-dev-vpc-ws'
               }
             ],
             'Configuration' => {
@@ -209,16 +208,44 @@ CloudFormation {
               'Category' => 'Build',
               'Owner' => 'Custom',
               'Version' => version,
-              'Provider' => 'buildActionProvider'
+              'Provider' => jenkins_action_provider_name
             },
             'RunOrder' => 2,
             'InputArtifacts' => [
               {
-                'Name' => 'converge-dev'
+                'Name' => 'converge-dev-vpc-ws'
+              }
+            ],
+            'OutputArtifacts' => [
+              {
+                'Name' => 'run-infra-tests-ws'
               }
             ],
             'Configuration' => {
               'ProjectName' => run_infrastructure_tests_action_name
+            }
+          }
+        ]
+      },
+      {
+        'Name' => 'production',
+        'Actions' => [
+          {
+            'Name' => converge_prod_vpc_action_name,
+            'ActionTypeId' => {
+              'Category' => 'Build',
+              'Owner' => 'Custom',
+              'Version' => version,
+              'Provider' => jenkins_action_provider_name
+            },
+            'RunOrder' => 1,
+            'InputArtifacts' => [
+              {
+                'Name' => 'run-infra-tests-ws'
+              }
+            ],
+            'Configuration' => {
+              'ProjectName' => converge_prod_vpc_action_name
             }
           }
         ]

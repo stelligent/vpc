@@ -1,0 +1,7 @@
+---
+vpc_name: pipeline-vpc
+vpc_cidr: 10.0.0.0/16
+
+nat_instance_type: t2.micro
+nat_keypair: pipeline-vpc-nat
+
