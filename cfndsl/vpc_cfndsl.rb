@@ -2,9 +2,10 @@ CloudFormation {
   Description 'Setup a basic VPC to work in'
 
   vpc_name ||= 'defaultvpc'
+  vpc_cidr ||= '10.0.0.0/16'
 
   EC2_VPC('vpc') {
-    CidrBlock '10.0.0.0/16'
+    CidrBlock vpc_cidr
     EnableDnsHostnames true
 
     Tags [

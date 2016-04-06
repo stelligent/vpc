@@ -4,11 +4,11 @@ CloudFormation {
   nat_instance_type ||= 't2.micro'
   vpc_name ||= 'dev-vpc'
   vpc_cidr ||= '10.0.0.0/16'
-  key_pair_name ||= 'dev-vpc-nat'
+  nat_keypair ||= 'nat'
 
-  vpc_id ||= 'vpc-3eeef95a'
-  public_subnet_id ||= 'subnet-a2038388'
-  private_route_table_id ||= 'rtb-130b8d74'
+  vpcId ||= 'vpc-3eeef95a'
+  publicSubnetId1 ||= 'subnet-a2038388'
+  privateRouteTableId ||= 'rtb-130b8d74'
 
   Mapping('NatRegionMap', {
                           'us-east-1' => {'AMI' => 'ami-184dc970' },
@@ -24,7 +24,7 @@ CloudFormation {
 
   EC2_SecurityGroup('NatSecurityGroup') {
     GroupDescription "#{vpc_name} NAT Security Group"
-    VpcId vpc_id
+    VpcId vpcId
 
     Tags [
       {
@@ -61,7 +61,7 @@ CloudFormation {
 
   EC2_Instance('NAT') {
     InstanceType nat_instance_type
-    KeyName key_pair_name
+    KeyName nat_keypair
     SourceDestCheck false
     ImageId FnFindInMap('NatRegionMap',
                         Ref('AWS::Region'),
@@ -73,7 +73,7 @@ CloudFormation {
         'AssociatePublicIpAddress' => true,
         'DeviceIndex' => '0',
         'DeleteOnTermination' => true,
-        'SubnetId' => public_subnet_id
+        'SubnetId' => publicSubnetId1
       }
     ]
 
@@ -90,7 +90,7 @@ CloudFormation {
 
   EC2_Route('privateRouteToNAT') {
     DependsOn %w(NAT)
-    RouteTableId private_route_table_id
+    RouteTableId privateRouteTableId
     DestinationCidrBlock '0.0.0.0/0'
     InstanceId Ref('NAT')
   }
