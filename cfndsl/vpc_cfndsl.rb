@@ -116,6 +116,13 @@ CloudFormation {
     GatewayId Ref('igw')
   }
 
+  EC2_Route('publicRoute') {
+    DependsOn 'attachGateway'
+    RouteTableId Ref('publicRouteTable')
+    DestinationCidrBlock '1.1.1.1/32'
+    GatewayId Ref('igw')
+  }
+
   %w(publicSubnet1 publicSubnet2).each do |publicSubnet|
     EC2_SubnetRouteTableAssociation("#{publicSubnet}RouteTableAssociation") {
       SubnetId Ref(publicSubnet)
