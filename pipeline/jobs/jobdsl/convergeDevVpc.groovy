@@ -16,8 +16,8 @@ job(jobName) {
 
     project / scm(class: 'com.amazonaws.codepipeline.jenkinsplugin.AWSCodePipelineSCM', plugin: 'codepipeline@0.8') {
       clearWorkspace true
-      actionTypeCategory 'Deploy'
-      actionTypeProvider jobName
+      actionTypeCategory 'Build'
+      actionTypeProvider 'buildActionProvider'
       projectName jobName
       actionTypeVersion customActionTypeVersion
       region awsRegion

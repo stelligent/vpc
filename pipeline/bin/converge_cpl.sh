@@ -17,5 +17,5 @@ bundle install
 
 cfndsl_converge --path-to-stack pipeline/cfndsl/codepipeline_cfndsl.rb \
                 --path-to-yaml input.yml \
-                --stack-name vpc-pipeline
+                --stack-name vpc-deployment-pipeline
 

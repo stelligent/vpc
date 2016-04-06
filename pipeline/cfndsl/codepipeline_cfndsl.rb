@@ -6,12 +6,13 @@ CloudFormation {
   job_repo_branch ||= 'master'
   jenkins_url ||= nil
 
-  version = '1'
+  version = '2'
   pipeline_name = 'vpc'
   bucket_name_stem = 'vpc-pipeline-artefact-store'
 
   S3_Bucket('rArtifactStore') {
-    BucketName "#{bucket_name_stem}#{Time.now.to_i}"
+    BucketName bucket_name_stem
+
     VersioningConfiguration({
                               'Status' => 'Enabled'
                             })
@@ -80,62 +81,40 @@ CloudFormation {
 
   vpc_artefact_name = 'vpcWorkspace'
 
-  [
-    {
-      logical_resource_id: 'rStaticAnalysisCustomAction',
-      category: 'Test',
-      provider: run_static_analysis_action_name
-    },
-    {
-      logical_resource_id: 'rConvergeDevVpcCustomAction',
-      category: 'Deploy',
-      provider: converge_dev_vpc_action_name
-    },
-    {
-      logical_resource_id: 'rRunInfrastructureTestsCustomAction',
-      category: 'Test',
-      provider: run_infrastructure_tests_action_name
-    },
-    {
-      logical_resource_id: 'rConvergeProdVpcCustomAction',
-      category: 'Deploy',
-      provider: converge_prod_vpc_action_name
+  Resource('rBuildActionType') {
+    Type 'AWS::CodePipeline::CustomActionType'
+
+    Property 'Category', 'Build'
+    Property 'Provider', 'buildActionProvider'
+    Property 'Version', version
+    Property 'ConfigurationProperties', [
+      {
+        'Name' => 'ProjectName',
+        'Description' => 'The name of the build project must be provided when this action is added to the pipeline.',
+        'Key' => true,
+        'Queryable' => true,
+        'Required' => true,
+        'Secret' => false,
+        'Type' => 'String'
+      }
+    ]
+
+    Property 'InputArtifactDetails', {
+      'MaximumCount' => '5',
+      'MinimumCount' => '1'
     }
-  ].each do |custom_action|
-    Resource(custom_action[:logical_resource_id]) {
-      Type 'AWS::CodePipeline::CustomActionType'
 
-      Property 'Category', custom_action[:category]
-      Property 'Provider', custom_action[:provider]
-      Property 'Version', version
-      Property 'ConfigurationProperties', [
-        {
-          'Name' => 'ProjectName',
-          'Description' => 'The name of the build project must be provided when this action is added to the pipeline.',
-          'Key' => true,
-          'Queryable' => true,
-          'Required' => true,
-          'Secret' => false,
-          'Type' => 'String'
-        }
-      ]
-
-      Property 'InputArtifactDetails', {
-        'MaximumCount' => '5',
-        'MinimumCount' => '1'
-      }
-
-      Property 'OutputArtifactDetails', {
-        'MaximumCount' => '5',
-        'MinimumCount' => '0'
-      }
-
-      Property 'Settings', {
-        'EntityUrlTemplate' => FnJoin('', [jenkins_url, 'job/{Config:ProjectName}']),
-        'ExecutionUrlTemplate' => FnJoin('', [jenkins_url, 'job/{Config:ProjectName}/{ExternalExecutionId}'])
-      }
+    Property 'OutputArtifactDetails', {
+      'MaximumCount' => '5',
+      'MinimumCount' => '0'
     }
-  end
+
+    Property 'Settings', {
+      'EntityUrlTemplate' => FnJoin('', [jenkins_url, 'job/{Config:ProjectName}']),
+      'ExecutionUrlTemplate' => FnJoin('', [jenkins_url, 'job/{Config:ProjectName}/{ExternalExecutionId}'])
+    }
+  }
+
 
   Resource('rPipeline') {
     Type 'AWS::CodePipeline::Pipeline'
@@ -176,10 +155,10 @@ CloudFormation {
            {
              'Name' => run_static_analysis_action_name,
              'ActionTypeId' => {
-               'Category' => 'Test',
+               'Category' => 'Build',
                'Owner' => 'Custom',
                'Version' => version,
-               'Provider' => run_static_analysis_action_name
+               'Provider' => 'buildActionProvider'
              },
              'RunOrder' => 1,
              'InputArtifacts' => [
@@ -188,6 +167,9 @@ CloudFormation {
                }
              ],
              'OutputArtifacts' => [
+               {
+                 'Name' => 'static-analysis'
+               }
              ],
              'Configuration' => {
                'ProjectName' => run_static_analysis_action_name
@@ -201,10 +183,10 @@ CloudFormation {
           {
             'Name' => converge_dev_vpc_action_name,
             'ActionTypeId' => {
-              'Category' => 'Deploy',
+              'Category' => 'Build',
               'Owner' => 'Custom',
               'Version' => version,
-              'Provider' => converge_dev_vpc_action_name
+              'Provider' => 'buildActionProvider'
             },
             'RunOrder' => 1,
             'InputArtifacts' => [
@@ -213,6 +195,9 @@ CloudFormation {
               }
             ],
             'OutputArtifacts' => [
+              {
+                'Name' => 'converge-dev'
+              }
             ],
             'Configuration' => {
               'ProjectName' => converge_dev_vpc_action_name
@@ -221,10 +206,10 @@ CloudFormation {
           {
             'Name' => run_infrastructure_tests_action_name,
             'ActionTypeId' => {
-              'Category' => 'Test',
+              'Category' => 'Build',
               'Owner' => 'Custom',
               'Version' => version,
-              'Provider' => run_infrastructure_tests_action_name
+              'Provider' => 'buildActionProvider'
             },
             'RunOrder' => 2,
             'InputArtifacts' => [
