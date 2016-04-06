@@ -7,4 +7,6 @@ gem install bundler --conservative \
                     
 bundle install
 
+export AWS_REGION=us-west-2
+
 rspec spec/vpc_spec.rb
