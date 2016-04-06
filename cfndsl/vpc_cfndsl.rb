@@ -115,20 +115,7 @@ CloudFormation {
     DestinationCidrBlock '0.0.0.0/0'
     GatewayId Ref('igw')
   }
-
-  EC2_Route('publicRoute2') {
-    DependsOn 'attachGateway'
-    RouteTableId Ref('publicRouteTable')
-    DestinationCidrBlock '1.1.1.2/32'
-    GatewayId Ref('igw')
-  }
-
-  EC2_Route('publicRoute3') {
-    DependsOn 'attachGateway'
-    RouteTableId Ref('publicRouteTable')
-    DestinationCidrBlock '1.1.1.3/32'
-    GatewayId Ref('igw')
-  }
+  
 
   %w(publicSubnet1 publicSubnet2).each do |publicSubnet|
     EC2_SubnetRouteTableAssociation("#{publicSubnet}RouteTableAssociation") {
