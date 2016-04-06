@@ -1,4 +1,4 @@
-jobName = 'run-infrastructure-tests'
+jobName = 'run-infra-tests'
 awsRegion = 'us-west-2'
 customActionTypeVersion = 1
 
