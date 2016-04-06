@@ -191,7 +191,7 @@ CloudFormation {
             'RunOrder' => 1,
             'InputArtifacts' => [
               {
-                'Name' => vpc_artefact_name
+                'Name' => 'static-analysis'
               }
             ],
             'OutputArtifacts' => [
@@ -214,7 +214,7 @@ CloudFormation {
             'RunOrder' => 2,
             'InputArtifacts' => [
               {
-                'Name' => vpc_artefact_name
+                'Name' => 'converge-dev'
               }
             ],
             'Configuration' => {

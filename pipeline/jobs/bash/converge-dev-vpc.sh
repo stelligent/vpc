@@ -7,6 +7,8 @@ gem install bundler --conservative \
 
 bundle install
 
+export AWS_REGION=us-west-2
+
 cfndsl_converge --path-to-stack cfndsl/vpc_cfndsl.rb \
                 --path-to-yaml tiers/dev.yml \
                 --stack-name dev-vpc-base
