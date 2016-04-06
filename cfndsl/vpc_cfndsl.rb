@@ -90,6 +90,10 @@ CloudFormation {
       {
         Key: 'Name',
         Value: FnJoin('', [ vpc_name, '.internet-facing'])
+      },
+      {
+        Key: 'immutable',
+        Value: 'true'
       }
     ]
   }

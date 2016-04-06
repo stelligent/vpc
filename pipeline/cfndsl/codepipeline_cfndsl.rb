@@ -244,6 +244,11 @@ CloudFormation {
                 'Name' => 'run-infra-tests-ws'
               }
             ],
+            'OutputArtifacts' => [
+              {
+                'Name' => 'prod-ws'
+              }
+            ],
             'Configuration' => {
               'ProjectName' => converge_prod_vpc_action_name
             }
