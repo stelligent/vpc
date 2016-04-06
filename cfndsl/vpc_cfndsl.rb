@@ -119,7 +119,7 @@ CloudFormation {
   EC2_Route('publicRoute2') {
     DependsOn 'attachGateway'
     RouteTableId Ref('publicRouteTable')
-    DestinationCidrBlock '1.1.1.1/32'
+    DestinationCidrBlock '1.1.1.2/32'
     GatewayId Ref('igw')
   }
 
