@@ -12,6 +12,8 @@ end
 
 public_subnet1_under_test = subnet("dev-vpc.internet-facing.1.#{region}")
 describe public_subnet1_under_test do
+  it { should exist }
+
   its(:cidr_block) {
     should eq '10.0.0.0/24'
   }
@@ -25,6 +27,8 @@ public_subnet1_az = public_subnet1_under_test.availability_zone
 
 public_subnet2_under_test = subnet("dev-vpc.internet-facing.2.#{region}")
 describe public_subnet2_under_test do
+  it { should exist }
+
   its(:cidr_block) {
     should eq '10.0.10.0/24'
   }
@@ -46,6 +50,7 @@ end
 
 private_subnet1_under_test = subnet("dev-vpc.internal.1.#{region}")
 describe private_subnet1_under_test do
+  it { should exist }
   its(:cidr_block) {
     should eq '10.0.20.0/24'
   }
@@ -55,10 +60,12 @@ describe private_subnet1_under_test do
   }
 end
 
-private_subnet1_az = private_subnet1_under_test.availability_zone
+private_subnet1_az = private_subnet1_under_test.resource.id
 
 private_subnet2_under_test = subnet("dev-vpc.internal.2.#{region}")
 describe private_subnet2_under_test do
+  it { should exist }
+
   its(:cidr_block) {
     should eq '10.0.30.0/24'
   }

@@ -3,7 +3,7 @@ require 'aws-sdk'
 require 'id_util'
 
 def region
-  'us-east-1'
+  'us-west-2'
 end
 
 
