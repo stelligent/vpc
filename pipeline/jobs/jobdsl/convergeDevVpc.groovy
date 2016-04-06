@@ -3,6 +3,10 @@ awsRegion = 'us-west-2'
 customActionTypeVersion = 1
 
 job(jobName) {
+  triggers {
+    scm('* * * * *')
+  }
+
   steps {
     shell(readFileFromWorkspace("pipeline/jobs/bash/${jobName}.sh"))
   }
